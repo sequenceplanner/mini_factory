@@ -1,0 +1,29 @@
+[package]
+name = "sp_model"
+version = "0.1.0"
+authors = ["Martin Dahl <martin.dahl@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "sp_resources"
+path = "src/lib.rs"
+
+[[bin]]
+name = "mini"
+path = "src/mini.rs"
+
+[features]
+default = ["ros"]
+ros = ["sp-runner/ros"]
+
+[dependencies]
+# sp-domain = { path = "/Users/kristofer/sw/sp-rust/sp-domain" }
+# sp-runner = { path = "/Users/kristofer/sw/sp-rust/sp-runner" }
+sp-domain = { git = "https://github.com/sequenceplanner/sp-rust", rev = "547eb57" }
+sp-runner = { git = "https://github.com/sequenceplanner/sp-rust", rev = "547eb57" }
+
+
+failure = "0.1.8"
+
+[dev-dependencies]
+serial_test = "0.5.0"
