@@ -29,6 +29,9 @@ pub fn mini() -> (Model, SPState) {
 
     let cyl_pos = m.add_estimated_domain("cyl_pos", cyl_domain, true);
 
+    m.add_effect("ev_left_sensor", p!([cyl_pos != "unknown"] && [act_dir == "left"]), a!(s1 = true));
+    m.add_effect("ev_right_sensor", p!([cyl_pos != "unknown"] && [act_dir == "right"]), a!(s2 = true));
+
     m.add_auto("at_left", p!([s1] && [cyl_pos != "at_left"]), vec!(a!(cyl_pos = "at_left")));
     m.add_auto("at_right", p!([s2] && [cyl_pos != "at_right"]), vec!(a!(cyl_pos = "at_right")));
     m.add_auto("at_inbetween", p!([!s1] && [!s2] && [[cyl_pos == "at_left"] ||[cyl_pos == "at_right"]]), vec!(a!(cyl_pos = "inbetween")));
