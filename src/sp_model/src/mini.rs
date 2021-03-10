@@ -13,38 +13,76 @@ use sp_domain::*;
 
 pub fn mini() -> (Model, SPState) {
     let mut m = GModel::new("mini");
-    let conv = m.use_named_resource("conv", conv::create_instance("conv"));
+    let conv = m.use_resource(control_box::create_instance("conveyor"));
 
-    let s1 = &conv["s1"];
-    let s2 = &conv["s2"];
-    let dir = &conv["dir"];
-    let act_dir = &conv["act_dir"];
+    let s1 = &conv["sensor1"];
+    let s2 = &conv["sensor2"];
+    let run = &conv["run"];
+    let dir = &conv["direction"];
 
     let cyl_domain= &[
-        "unknown".to_spvalue(), 
-        "inbetween".to_spvalue(), 
+        "unknown".to_spvalue(),
+        "inbetween".to_spvalue(),
         "at_left".to_spvalue(),
         "at_right".to_spvalue(),
     ];
 
     let cyl_pos = m.add_estimated_domain("cyl_pos", cyl_domain, true);
 
-    m.add_effect("ev_left_sensor", p!([cyl_pos != "unknown"] && [act_dir == "left"]), a!(s1 = true));
-    m.add_effect("ev_right_sensor", p!([cyl_pos != "unknown"] && [act_dir == "right"]), a!(s2 = true));
+    m.add_effect("ev_left_sensor", &p!([p:cyl_pos != "unknown"] && [p:run] && [p:dir] && [!p:s2]), &vec![a!(p:s2 = true)]);
+    m.add_effect("ev_right_sensor", &p!([p:cyl_pos != "unknown"] && [p:run] && [!p:dir] && [!p:s1]), &vec![a!(p:s1 = true)]);
 
-    m.add_auto("at_left", p!([s1] && [cyl_pos != "at_left"]), vec!(a!(cyl_pos = "at_left")));
-    m.add_auto("at_right", p!([s2] && [cyl_pos != "at_right"]), vec!(a!(cyl_pos = "at_right")));
-    m.add_auto("at_inbetween", p!([!s1] && [!s2] && [[cyl_pos == "at_left"] ||[cyl_pos == "at_right"]]), vec!(a!(cyl_pos = "inbetween")));
+    m.add_op("to_left",
+             // operation model guard.
+             &p!(p:cyl_pos != "at_left"),
+             // operation model effects.
+             &[a!(p:cyl_pos = "at_left")],
+             // low level goal
+             &p!([p:s1] && [!p:run]),
+             // low level actions (should not be needed)
+             &[],
+             // auto
+             true, None);
+
+    m.add_op("to_right",
+             // operation model guard.
+             &p!(p:cyl_pos != "at_right"),
+             // operation model effects.
+             &[a!(p:cyl_pos = "at_right")],
+             // low level goal
+             &p!([p:s2] && [!p:run]),
+             // low level actions (should not be needed)
+             &[],
+             // auto
+             true, None);
 
 
-    
+
+    let to_right = m.add_intention(
+        "to_right",
+        true,
+        &p!(p:cyl_pos == "at_left"),
+        &p!(p:cyl_pos == "at_right"),
+        &[],
+        None,
+    );
+
+    let to_left = m.add_intention(
+        "to_left",
+        true,
+        &p!(p:cyl_pos == "at_right"),
+        &p!(p:cyl_pos == "at_left"),
+        &[],
+        None,
+    );
 
 
     // setup initial state of our estimated variables.
     // todo: do this interactively in some UI
     m.initial_state(&[
-        
-        ]);
+        (&cyl_pos, "unknown".to_spvalue()),
+        (&to_right, "paused".to_spvalue()),
+    ]);
 
     println!("MAKING MODEL");
     m.make_model()

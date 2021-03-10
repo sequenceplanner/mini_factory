@@ -16,12 +16,8 @@ endfunction()
 # put ros package dependencies here.
 ros_deps(std_msgs
          rcl
-         sp_operator_msgs
          sp_messages
          control_box_msgs
-         camera_msgs
-         robot_msgs
-         gripper_msgs
         )
 
 # this works fine except that it will be called both on make all and again on make install...
@@ -41,9 +37,7 @@ endif(CARGO_CLEAN)
 unset(CARGO_CLEAN CACHE)
 
 install(PROGRAMS
-  ${CMAKE_SOURCE_DIR}/target/release/cylinders
-  ${CMAKE_SOURCE_DIR}/target/release/cylinders2
-  ${CMAKE_SOURCE_DIR}/target/release/cylinders2_structs
+  ${CMAKE_SOURCE_DIR}/target/release/mini
   DESTINATION lib/${PROJECT_NAME}
 )
 
