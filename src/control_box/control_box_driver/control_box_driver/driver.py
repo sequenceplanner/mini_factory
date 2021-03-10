@@ -23,6 +23,9 @@ class ControlBoxDriver(SPNode):
     def __init__(self):
         super().__init__("control_box_driver")
 
+        # initial goal (false)
+        self.goal_to_json(Goal, Goal())
+
         self.GPO1 = 4
         self.GPO2 = 17
         self.GPO3 = 18
@@ -86,6 +89,8 @@ class ControlBoxDriver(SPNode):
         GPIO.output(self.GPO2, data.direction)
         # GPIO.output(self.GPO3, data.out1)
         # GPIO.output(self.GPO4, data.out2)
+
+        self.goal_to_json(Goal, data)
 
 def main(args=None):
     rclpy.init(args=None)
