@@ -17,13 +17,13 @@ class SPNode(Node):
         self.sp_node_cmd_subscriber = self.create_subscription(
             Resources,
             "/sp/resources",
-            self.sp_resources_callback,
-            10)
+            self.sp_resources_callback
+            )#,10)
 
         self.sp_resource_publisher = self.create_publisher(
             RegisterResource,
-            "/sp/resource",
-            10)
+            "/sp/resource"
+            )#, 10)
 
     def sp_resources_callback(self, data):
         if not self.resource.path in data.resources:
