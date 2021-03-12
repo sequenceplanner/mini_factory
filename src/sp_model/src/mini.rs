@@ -13,12 +13,12 @@ use sp_domain::*;
 
 pub fn mini() -> (Model, SPState) {
     let mut m = GModel::new("mini");
-    let conv = m.use_resource(control_box::create_instance("conveyor"));
+    let ctrl = m.use_resource(control_box::create_instance("control_box"));
 
-    let s1 = &conv["sensor1"];
-    let s2 = &conv["sensor2"];
-    let run = &conv["run"];
-    let dir = &conv["direction"];
+    let s1 = &ctrl["sensor1"];
+    let s2 = &ctrl["sensor2"];
+    let run = &ctrl["run"];
+    let dir = &ctrl["direction"];
 
     let cyl_domain= &[
         "unknown".to_spvalue(),
@@ -29,8 +29,8 @@ pub fn mini() -> (Model, SPState) {
 
     let cyl_pos = m.add_estimated_domain("cyl_pos", cyl_domain, true);
 
-    m.add_effect("ev_left_sensor", &p!([p:cyl_pos != "unknown"] && [p:run] && [p:dir] && [!p:s2]), &vec![a!(p:s2 = true)]);
-    m.add_effect("ev_right_sensor", &p!([p:cyl_pos != "unknown"] && [p:run] && [!p:dir] && [!p:s1]), &vec![a!(p:s1 = true)]);
+    m.add_effect("ev_left_sensor", &p!([p:cyl_pos != "unknown"] && [p:run] && [!p:dir] && [!p:s1]), &vec![a!(p:s1 = true)]);
+    m.add_effect("ev_right_sensor", &p!([p:cyl_pos != "unknown"] && [p:run] && [p:dir] && [!p:s2]), &vec![a!(p:s2 = true)]);
 
     m.add_op("to_left",
              // operation model guard.
@@ -82,6 +82,7 @@ pub fn mini() -> (Model, SPState) {
     m.initial_state(&[
         (&cyl_pos, "unknown".to_spvalue()),
         (&to_right, "paused".to_spvalue()),
+        (&to_left, "paused".to_spvalue()),
     ]);
 
     println!("MAKING MODEL");
