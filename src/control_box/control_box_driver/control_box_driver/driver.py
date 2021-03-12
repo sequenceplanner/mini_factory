@@ -54,8 +54,8 @@ class ControlBoxDriver(SPNode):
         GPIO.setup(self.GPI7, GPIO.IN)
         GPIO.setup(self.GPI8, GPIO.IN)
 
-        self.pub = self.create_publisher(Measured, "conveyor/measured")
-        self.sub = self.create_subscription(Goal, "conveyor/goal", self.sub_callback)
+        self.pub = self.create_publisher(Measured, "measured", 10)
+        self.sub = self.create_subscription(Goal, "goal", self.sub_callback, 10)
 
         self.tmr = self.create_timer(0.01, self.timer_callback)
 
