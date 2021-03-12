@@ -72,7 +72,7 @@ class ControlBoxDriver(SPNode):
 
         new_measured.sensor1 = GPIO.input(self.GPI1) == 1
         new_measured.sensor2 = GPIO.input(self.GPI2) == 1
-        # new_measured.button = ...
+        new_measured.button = GPIO.input(self.GPI3) == 1
 
         if self.measured != new_measured:
             self.measured = new_measured
@@ -87,7 +87,7 @@ class ControlBoxDriver(SPNode):
     def sub_callback(self, data):
         GPIO.output(self.GPO1, data.run)
         GPIO.output(self.GPO2, data.direction)
-        # GPIO.output(self.GPO3, data.out1)
+        GPIO.output(self.GPO3, data.out1)
         # GPIO.output(self.GPO4, data.out2)
 
         self.goal_to_json(Goal, data)
