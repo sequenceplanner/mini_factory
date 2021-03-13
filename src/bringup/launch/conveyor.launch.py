@@ -22,6 +22,6 @@ def generate_launch_description():
 
     nodes = [
             sp,
-            sp_ui,
+#            sp_ui,
              ]
     return launch.LaunchDescription(nodes)
