@@ -32,6 +32,18 @@ pub fn mini() -> (Model, SPState) {
     m.add_effect("ev_left_sensor", &p!([p:cyl_pos != "unknown"] && [p:run] && [!p:dir] && [!p:s1]), &vec![a!(p:s1 = true)]);
     m.add_effect("ev_right_sensor", &p!([p:cyl_pos != "unknown"] && [p:run] && [p:dir] && [!p:s2]), &vec![a!(p:s2 = true)]);
 
+    let timestamp = m.add_timestamp_variable("ctimestamp");
+    let set_timestamp = Action::new(timestamp.clone(), Compute::TimeStamp);
+
+    m.add_runner_transition("set_timestamp", &p!([p:s2 == true] && [p:timestamp == "reset"]), &vec![set_timestamp]);
+
+    let ton = Predicate::TON(PredicateValue::path(timestamp.clone()),
+                             PredicateValue::SPValue(SPValue::Int32(2000)));
+
+    m.add_runner_transition("set_io_after_delay", &p!([pp: ton] && [!p:run]),
+                            &vec![a!(p:run), a!(p:timestamp = "reset")]);
+
+
     m.add_op("to_left",
              // operation model guard.
              &p!(p:cyl_pos != "at_left"),
@@ -83,6 +95,7 @@ pub fn mini() -> (Model, SPState) {
         (&cyl_pos, "unknown".to_spvalue()),
         (&to_right, "paused".to_spvalue()),
         (&to_left, "paused".to_spvalue()),
+        (&timestamp, "reset".to_spvalue()),
     ]);
 
     println!("MAKING MODEL");
